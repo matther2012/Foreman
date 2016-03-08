@@ -1,0 +1,192 @@
+
+<%def name="errormessage(error_dict)" filter="trim">
+    <div class="error">
+        <% error = 'error' %>
+        <% pronoun = 'it' %>
+        <% num = len(error_dict) %>
+        % if num > 1:
+            <% error = 'errors' %>
+            <% pronoun = 'them' %>
+        % endif
+        You have ${num|h} ${error} in your input form. Please correct ${pronoun}.
+    </div>
+</%def>
+
+## if the form field was in error, this makes the field class="required"
+<%def name="isError(field)" filter="trim">
+	% if errors and field in errors:
+		required
+	% endif
+</%def>
+
+## gets the name of the error
+<%def name="getError(name)" filter="trim">
+	% if errors and name in errors.keys():
+		<div class="error">${errors[name]}</div>
+	% endif
+</%def>
+
+<%def name="formTextField_Timesheet(name, hidden=False, value=None)" filter="trim">
+        % if hidden:
+        <input type="hidden" value="${value|h}" name="${name|h}" id="${name|h}" />
+        % else:
+            % if value:
+		        <input type="text" class="timesheet ${isError(name)}" value="${value|h}" name="${name|h}" id="${name|h}" />
+            % else:
+		        <input type="text" class="timesheet ${isError(name)}" value="" name="${name|h}" id="${name|h}" />
+            % endif
+        % endif
+</%def>
+
+
+<%def name="formTextField(label, name, id, labelclass, inputclass, input_type='text', first=False, default='', value='',  p_id='', required=True, hidden=False)" filter="trim">
+    % if hidden:
+        <% hide = " class='hide'" %>
+    % else:
+        <% hide = "" %>
+    % endif
+    % if first != True:
+    <p style="clear:both; position:relative" id="${p_id|h}"${hide}>
+    % else:
+    <p id="${p_id|h}"${hide}>
+    % endif
+		<label for="${name|h}" class="${labelclass|h}">
+            ${label}
+            % if required is True:
+                <span class="require_label">*</span>
+            % endif
+        </label>
+
+    % if form_result and name in form_result:
+        <% value = form_result[name] %>
+    % elif value is None:
+        <% value = "" %>
+    % endif
+		<input type="${input_type}" class="${inputclass|h} ${isError(name)}" value="${value|h}" placeholder="${default|h}" name="${name|h}" id="${id|h}" />
+		${getError(name)|h}
+    </p>
+</%def>
+
+
+<%def name="formSelectBox(label, name, id, labelclass, inputclass, options, first=False, value=None, please_select=False, required=True, hidden=False)" filter="trim">
+    % if hidden:
+        <% hide = " class='hide'" %>
+    % else:
+        <% hide = "" %>
+    % endif
+
+    % if first != True:
+    <p style="clear:both; position:relative"${hide}>
+    % else:
+    <p${hide}>
+    % endif
+
+    % if form_result and name in form_result:
+        <% value = form_result[name] %>
+    % endif
+
+    <label for="${name|h}" class="${labelclass|h}">
+        ${label}
+        % if required is True:
+            <span class="require_label">*</span>
+        % endif
+    </label>
+    <select class="${inputclass|h} ${isError(name)}" name="${name|h}" id="${id|h}">
+        % if please_select == True:
+        <option value="null">Please select</option>
+        % endif
+        % for val, option in options:
+            % if str(value) == str(option):
+                <option value="${val|h}" selected>${option|h}</option>
+            % elif str(value) == str(val):
+                <option value="${val|h}" selected>${option|h}</option>
+            % else:
+                <option value="${val|h}">${option|h}</option>
+            % endif
+        % endfor
+    </select>
+    ${getError(name)|h}
+    </p>
+</%def>
+
+<%def name="formTextArea(label, name, id, labelclass, inputclass, value=None, first=False, required=True)" filter="trim">
+    % if first != True:
+    <p style="clear:both; position:relative">
+    % else:
+    <p>
+    % endif
+
+    % if form_result and name in form_result:
+        <% value = form_result[name] %>
+    % elif value is None:
+        <% value = "" %>
+    % endif
+
+		<label for="${name|h}" class="${labelclass|h}">
+            ${label}
+            % if required is True:
+                <span class="require_label">*</span>
+            % endif
+        </label>
+        <textarea class="${inputclass|h} ${isError(name)}" name="${name|h}" id="${id|h}">${value|h}</textarea>
+		${getError(name)|h}
+    </p>
+</%def>
+
+<%def name="formRadioButtons(label, options, name, id, labelclass, inputclass, radiodivclass, first=False, required=True)" filter="trim">
+    % if first != True:
+    <p style="clear:both; position:relative">
+    % else:
+    <p>
+    % endif
+		<label for="${name|h}" class="${labelclass|h}">
+            ${label}
+            % if required is True:
+                <span class="require_label">*</span>
+            % endif
+            <br/>${getError(name)|h}
+        </label></p>
+        <div class="${radiodivclass|h}">
+        % for opt, desc in options:
+            <p>
+                <input class="${inputclass|h}" type="radio" id="${name|h}_${opt|h}" name="${name|h}" value="${opt|h}" />
+		        ${desc|h}
+            </p>
+        % endfor
+        </div>
+
+
+</%def>
+
+<%def name="formCheckBoxes(label, opt, name, id, labelclass, inputclass, checked=False, first=False)" filter="trim">
+    % if first != True:
+    <p style="clear:both; position:relative">
+    % else:
+    <p>
+    % endif
+		<label for="${name|h}" class="${labelclass|h}">${label}</label></p>
+        % if checked:
+            <input class="${inputclass|h}" type="checkbox" id="${opt|h}" name="${name|h}" value="${opt|h}" checked />
+        % else:
+            <input class="${inputclass|h}" type="checkbox" id="${opt|h}" name="${name|h}" value="${opt|h}" />
+        % endif
+        ${getError(name)|h}
+    </p>
+</%def>
+
+<%def name="pickImageField(label, name, id, labelclass, inputclass, icon_list, func, img_class, first=False)" filter="trim">
+    % if first != True:
+    <p style="clear:both; position:relative">
+    % else:
+    <p>
+    % endif
+		<label for="${name|h}" class="${labelclass|h}">${label}</label></p>
+        <div class="${inputclass|h}">
+            <input type="hidden" name="${name|h}" id="${id|h}" value="" />
+            % for icon in icon_list:
+            <img id="${icon|h}" class="${img_class|h}" onclick="return ${func}('${icon}');" alt="${icon|h} icon" src="${urls.build("images", dict(file='siteimages/evidence_icons_unique/' + icon))|h}" />
+            % endfor
+        </div>
+        ${getError(name)|h}
+    </p>
+</%def>

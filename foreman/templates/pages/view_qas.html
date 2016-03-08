@@ -1,0 +1,43 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+
+<%def name="javascripts()" filter="trim">
+</%def>
+
+<%namespace file="/utils/format.html" name="f" />
+
+<div id="sidebar">
+    ${sidebars.tasks_menu()}
+</div>
+
+<div id="mainbar">
+    % if current_user.is_investigator():
+        % if completed is False:
+            <h1>Outstanding QAs for ${current_user.fullname|h}</h1>
+        % else:
+            <h1>Completed QAs for ${current_user.fullname|h}</h1>
+        % endif
+
+        % if completed is False:
+        <p><a href='${urls.build("task.view_qas", dict(completed=True))|h}'>Show completed QAs</a></p>
+        <h2>Outstanding QA as principle QA Investigator</h2>
+        % else:
+        <p><a href='${urls.build("task.view_qas")|h}'>Show Outstanding QAs</a></p>
+        <h2>Completed QA as principle QA Investigator</h2>
+        % endif
+
+        ${f.qa_task_table(user_primary_qa)}
+
+        % if completed is False:
+        <h2>Outstanding QA as secondary QA Investigator</h2>
+        % else:
+        <h2>Completed QA as secondary QA Investigator</h2>
+        % endif
+
+        ${f.qa_task_table(user_secondary_qa)}
+    % endif
+    <h1>All Open Tasks in QA stage</h1>
+
+    ${f.qa_task_table(qa_tasks)}
+
+</div>

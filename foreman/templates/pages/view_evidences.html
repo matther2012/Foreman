@@ -1,0 +1,100 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+        
+<%def name="javascripts()" filter="trim">
+
+</%def>
+
+
+<div id="sidebar">
+    ${sidebars.tasks_menu()}
+</div>
+<div id="mainbar">
+    <h1>Evidence</h1>
+
+    <% count = False %>
+    % if evidence:
+        <p><a href='${urls.build("evidence.add_no_case")|h}'>Add more evidence without a case</a>, otherwise please go to a
+        case and add evidence from that case. </p>
+        <h2>Evidence that needs associating with a case</h2>
+        % for evi in evidence:
+            % if evi.case_id is None:
+            <div class="evidence">
+                <img alt="${evi.type|h} icon" src="${urls.build("images", dict(file='siteimages/evidence_icons/' + evi.icon + '.png'))|h}" style="float:left"/>
+                <p>No case associated.
+                <br/><a href='${urls.build("evidence.view_caseless", dict(evidence_id=evi.id))|h}'>${evi.reference|h}</a></p>
+            </div>
+            <% count = True %>
+
+        <div class="clear"/>
+
+            % endif
+        % endfor
+
+        % if count is False:
+            <p>No unassociated evidence.</p>
+        % endif
+
+        <h2>Timeline of added evidence</h2>
+
+        <p>Sort by:
+            <a href="?sort_by=date">Date evidence added - Newest First</a> |
+            <a href="?sort_by=date_old">Date evidence added - Oldest First</a> |
+            <a href="?sort_by=case">Case evidence associated with</a> |
+            <a href="?sort_by=user">Person who added the evidence</a></p>
+
+        <% from datetime import datetime, timedelta %>
+        <% current_date = datetime.now()+ timedelta(days=1) %>
+        <% current_case_id = -1 %>
+        <% current_user_id = -1 %>
+        % for evi in evidence:
+
+            % if sort_by == "date" or sort_by == "date_old":
+                % if current_date.date() != evi.current_status.date_of_custody.date():
+                    <div style="clear:both" />
+                    <h2>${evi.current_status.date_of_custody.date().strftime("%d %b %Y")|h}</h2>
+                    <% current_date = evi.current_status.date_of_custody %>
+                % endif
+            % elif sort_by == "case":
+                % if evi.case_id != current_case_id:
+                    <div style="clear:both" />
+                    <h2>${evi.case.case_name|h}</h2>
+                    <% current_case_id = evi.case_id %>
+                % endif
+            % elif sort_by == "user":
+                % if evi.user_id != current_user_id:
+                    <div style="clear:both" />
+                    <h2>${evi.user.fullname|h}</h2>
+                    <% current_user_id = evi.user_id %>
+                % endif
+            % endif
+
+            % if evi.case_id is not None and evi.case.private:
+            <div class="evidence_private">
+            % else:
+            <div class="evidence">
+            % endif
+
+                <img alt="${evi.type|h} icon" src="${urls.build("images", dict(file='siteimages/evidence_icons/' + evi.icon + '.png'))|h}" class="evidenceicon"/>
+                % if evi.case_id is not None:
+                    % if evi.case.status == "Archived":
+                        <span class="archived">
+                    % endif
+                <p><a href='${urls.build("case.view", dict(case_id=evi.case.id))|h}'>${evi.case.case_name|h}</a>
+                <br /><a href='${urls.build("evidence.view", dict(evidence_id=evi.id, case_id=evi.case.id))|h}'>${evi.reference|h}</a></p>
+                        % if evi.case.status == "Archived":
+                            </span>
+                        % endif
+                % else:
+                <p>No case associated.
+                <br/><a href='${urls.build("evidence.view_caseless", dict(evidence_id=evi.id))|h}'>${evi.reference|h}</a></p>
+                % endif
+            </div>
+        % endfor
+
+    % else:
+           <p>No evidence has been added. <a href='${urls.build("evidence.add_no_case")|h}'>Add evidence without a case</a>, otherwise please
+              go to a case and add evidence from that case. </p>
+    % endif
+
+</div>

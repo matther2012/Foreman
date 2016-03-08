@@ -1,0 +1,32 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+<%def name="javascripts()" filter="trim"></%def>
+<%namespace file="/utils/format.html" name="f" />
+
+<div id="sidebar">
+    ${sidebars.tasks_menu()}
+</div>
+<div id="mainbar">
+    <h1>Tasks for ${current_user.fullname|h}</h1>
+
+    % if all_tasks:
+
+    <h2>Outstanding Tasks as principle Forensic Investigator</h2>
+
+    ${f.task_table(user_primary_inv, work_on=True)}
+
+    <h2>Outstanding Tasks as secondary Forensic Investigator</h2>
+
+    ${f.task_table(user_secondary_inv, work_on=True)}
+
+    <h1>All Open Tasks</h1>
+
+    ${f.task_table(all_tasks, work_on=True)}
+
+    % else:
+
+    <p>There are no tasks set up yet.</p>
+
+    % endif
+
+</div>

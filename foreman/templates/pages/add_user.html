@@ -1,0 +1,41 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+<%namespace file="/utils/forms.html" name="forms" />
+<%namespace file="/utils/format.html" name="format" />
+
+<%def name="javascripts()" filter="trim">
+</%def>
+
+
+<div id="sidebar">
+   ${sidebars.user_menu()}
+</div>
+
+<div id="mainbar">
+
+        <h1>Add Details</h1>
+
+        <p>A password will be auto-generated and emailed out to the user.</p>
+
+        <form method="post" action="${urls.build('user.add', dict())|h}">
+            ${forms.formTextField("Username", "username", "username", "form_label", "input_long", first=True)}
+            ${forms.formTextField("Email address", "email", "email", "form_label", "input_long")}
+            ${forms.formTextField("Forename", "forename", "forename", "form_label", "input_long")}
+            ${forms.formTextField("Middle Name", "middlename", "middlename", "form_label", "input_long", required=False)}
+            ${forms.formTextField("Surname", "surname", "surname", "form_label", "input_long")}
+            ${forms.formTextField("Job Title", "job_title", "job_title", "form_label", "input_long")}
+            ${forms.formSelectBox("Team & Department", "team", "team", "form_label", "input_long", teams, please_select=True)}
+            ${forms.formSelectBox("Manager", "manager", "manager", "form_label", "input_long", managers, please_select=True, required=False)}
+            ${forms.formTextField("Telephone Number", "telephone", "telephone", "form_label", "input_long", required=False)}
+            ${forms.formTextField("Alternative Telephone Number", "alt_telephone", "alt_telephone", "form_label", "input_long", required=False)}
+            ${forms.formTextField("Fax", "fax", "fax", "form_label", "input_long", required=False)}
+
+        <div style="clear:both"></div>
+        <h1>Add User Roles</h1>
+            % for role_type in role_types:
+                ${forms.formSelectBox(role_type[0], role_type[1], role_type[1], "form_label", "input_long", role_type[2], value="No", required=False)}
+            % endfor
+            <p style="clear:both; text-align:center"><input type="submit" value="Submit" /></p>
+        </form>
+
+</div>

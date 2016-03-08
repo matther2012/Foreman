@@ -1,0 +1,466 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+<%namespace file="/utils/forms.html" name="forms" />
+<%namespace file="/utils/format.html" name="format" />
+
+<%def name="javascripts()" filter="trim">
+    <link rel="StyleSheet" href="${urls.build('css', dict(file='jquery-ui-1.10.4.custom.css'))|h}" type="text/css" />
+    <script src="${urls.build('javascript', dict(file='jquery-1.10.2.js'))|h}"></script>
+    <script src="${urls.build('javascript', dict(file='jquery-ui-1.10.4.custom.min.js'))|h}"></script>
+
+    <script src="${urls.build('javascript', dict(file='spectrum.js'))|h}"></script>
+    <link rel='stylesheet' href="${urls.build('css', dict(file='spectrum.css'))|h}" />
+    <script>
+        $(function() {
+
+            $("#colour").spectrum({
+                preferredFormat: "hex",
+                showPaletteOnly: true,
+                showPalette:true,
+                color: 'green',
+                palette: [
+                    ['AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque', 'Black',
+                        'BlanchedAlmond', 'Blue', 'BlueViolet', 'Brown', 'BurlyWood', 'CadetBlue', 'Chartreuse',
+                        'Chocolate', 'Coral', 'CornflowerBlue', 'Cornsilk', 'Crimson', 'Cyan', 'DarkBlue', 'DarkCyan',
+                        'DarkGoldenRod', 'DarkGray', 'DarkGreen', 'DarkKhaki', 'DarkMagenta', 'DarkOliveGreen',
+                        'DarkOrange', 'DarkOrchid', 'DarkRed', 'DarkSalmon', 'DarkSeaGreen', 'DarkSlateBlue',
+                        'DarkSlateGray', 'DarkTurquoise', 'DarkViolet', 'DeepPink', 'DeepSkyBlue', 'DimGray',
+                        'DodgerBlue', 'FireBrick', 'FloralWhite', 'ForestGreen', 'Fuchsia', 'Gainsboro', 'GhostWhite',
+                        'Gold', 'GoldenRod', 'Gray', 'Green', 'GreenYellow', 'HoneyDew', 'HotPink', 'IndianRed ',
+                        'Indigo ', 'Ivory', 'Khaki', 'Lavender', 'LavenderBlush', 'LawnGreen', 'LemonChiffon',
+                        'LightBlue', 'LightCoral', 'LightCyan', 'LightGoldenRodYellow', 'LightGray', 'LightGreen',
+                        'LightPink', 'LightSalmon', 'LightSeaGreen', 'LightSkyBlue', 'LightSlateGray', 'LightSteelBlue',
+                        'LightYellow', 'Lime', 'LimeGreen', 'Linen', 'Magenta', 'Maroon', 'MediumAquaMarine', 'MediumBlue',
+                        'MediumOrchid', 'MediumPurple', 'MediumSeaGreen', 'MediumSlateBlue', 'MediumSpringGreen',
+                        'MediumTurquoise', 'MediumVioletRed', 'MidnightBlue', 'MintCream', 'MistyRose', 'Moccasin',
+                        'NavajoWhite', 'Navy', 'OldLace', 'Olive', 'OliveDrab', 'Orange', 'OrangeRed', 'Orchid',
+                        'PaleGoldenRod', 'PaleGreen', 'PaleTurquoise', 'PaleVioletRed', 'PapayaWhip', 'PeachPuff',
+                        'Peru', 'Pink', 'Plum', 'PowderBlue', 'Purple', 'RebeccaPurple', 'Red', 'RosyBrown', 'RoyalBlue',
+                        'SaddleBrown', 'Salmon', 'SandyBrown', 'SeaGreen', 'SeaShell', 'Sienna', 'Silver', 'SkyBlue',
+                        'SlateBlue', 'SlateGray', 'Snow', 'SpringGreen', 'SteelBlue', 'Tan', 'Teal', 'Thistle', 'Tomato',
+                        'Turquoise', 'Violet', 'Wheat', 'White', 'WhiteSmoke', 'Yellow', 'YellowGreen']
+                ]
+            });
+
+            $("#tabs").tabs();
+            $("#tabs").tabs({ active: ${active_tab}});
+
+            function slide_file_upload(select_box_selector){
+                var select_box = $(select_box_selector);
+                if ($(select_box_selector + " option:selected").val() == "FromList"){
+                    $(select_box).parents('.form_background').find(select_box_selector + "_uploader").slideDown("slow");
+                } else {
+                    $(select_box).parents('.form_background').find(select_box_selector + "_uploader").slideUp("slow");
+                }
+            }
+
+            $("#case_names").change(function() {
+                slide_file_upload('#case_names');
+            });
+
+            $("#task_names").change(function () {
+                slide_file_upload('#task_names');
+            });
+            slide_file_upload('#case_names');
+            slide_file_upload('#task_names');
+        });
+
+        function populate_icon(icon){
+            document.getElementById("icon_input").value = icon;
+            var list = document.getElementsByClassName("img_hover");
+            for (var i = 0; i < list.length; i++) {
+                list[i].style.border = "None";
+            }
+            document.getElementById(icon).style.border = "solid black 2px";
+            return false;
+        }
+    </script>
+
+</%def>
+
+<div id="mainbar_noside">
+    <h1>Foreman Administration</h1>
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">Options</a></li>
+            <li><a href="#tabs-2">Task Types & Categories</a></li>
+            <li><a href="#tabs-3">Evidence Types</a></li>
+            <li><a href="#tabs-4">Case Types & Classifications</a></li>
+            <li><a href="#tabs-5">Notes Export Formatting</a></li>
+            <li><a href="#tabs-6">Validate Users
+                % if unvalidated_users:
+                    <span class="validate">(${len(unvalidated_users)|h})</span>
+                % endif
+                & Deactivate Users
+            </a></li>
+            <li><a href="#tabs-7">Case Priorities</a></li>
+            <li><a href="#tabs-8">User Options</a></li>
+        </ul>
+
+        <div id="tabs-1" class="forensics_work_contents">
+
+            % if len(errors) == 0 and (number_cases > 0 or number_tasks > 0):
+                <div class="success">
+                <h1>Success!</h1>
+                % if len(errors) == 0 and number_cases > 0:
+                    <p>Uploaded ${number_cases|h} new case names.</p>
+                % endif
+                % if len(errors) == 0 and number_tasks > 0:
+                    <p>Uploaded ${number_tasks|h} new task names.</p>
+                % endif
+                </div>
+            % endif
+
+            <h1>Options</h1>
+
+            <div class="form_background">
+                <h2>Information About Your Team & Foreman Options</h2>
+
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='options', active_tab=0))|h}">
+                    ${forms.formTextField("Company Name", "company", "company", "form_label", "input_long", value=options.company, first=True)}
+                    ${forms.formTextField("Department Name", "department", "department", "form_label", "input_long", value=options.department)}
+                    <p style="clear:both;">When requester's add cases to Foreman, they are not given an option to pick a case name. The options below specify the automatic case & task names that will be assigned. You can change the case & task names as soon as they are created.</p>
+                    ${forms.formSelectBox("Automatic Case Name Generation", "case_names", "case_names", "form_label", "input_long", case_name_options, value=options.case_names, first=True)}
+                    ${forms.formTextField("Upload Case Names (1 per line)", "upload_case_names", "upload_case_names", "form_label", "input_long", input_type="file", p_id="case_names_uploader")}
+                    ${forms.formSelectBox("Automatic Task Name Generation", "task_names", "task_names", "form_label", "input_long", task_name_options, value=options.task_names)}
+                    ${forms.formTextField("Upload Task Names (1 per line)", "upload_task_names", "upload_task_names", "form_label", "input_long", input_type="file", p_id="task_names_uploader")}
+                    ${forms.formTextField("Default folder location", "folder", "folder", "form_label", "input_long", value=options.default_location)}
+                    <p style="clear:both;">For information on the date & time formatting, <a href="http://strftime.org/" target="_blank">please click here</a>.</p>
+                    ${forms.formTextField("Date & time display", "datedisplay", "datedisplay", "form_label", "input_long", value=options.date_format)}
+
+                    <p style="clear:both; text-align:center"><input type="submit" value="Submit" /></p>
+                </form>
+            </div>
+            <h1>Teams</h1>
+            <p>Teams that users belong to, e.g. administrators, requesters, authorisers, case managers and investigators.
+                Note you can only remove departments which have no teams (remove the teams first); and can only remove teams with no users.
+                Please remove all members of the team first by editing their profile and changing their team to something else. </p>
+            <div class="form_background">
+                <h2>Add Department</h2>
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='add_department', active_tab=0))|h}">
+                    ${forms.formTextField("Department Name", "department_name", "department_name", "form_label", "input_long", first=True)}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+                </form>
+            </div>
+
+            % if len(department_options) > 0:
+            <div class="form_background">
+                <h2>Rename Department</h2>
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='rename_department', active_tab=0))|h}">
+                    ${forms.formSelectBox("Department", "old_department_name", "old_department_name", "form_label", "input_long", department_options, first=True, please_select=True)}
+                    ${forms.formTextField("New Name", "new_dep_name", "new_dep_name", "form_label", "input_long")}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Rename" /></p>
+                </form>
+            </div>
+            % endif
+
+            % if len(del_department_options) > 0:
+            <div class="form_background">
+                <h2>Remove Department</h2>
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='remove_department', active_tab=0))|h}">
+                    ${forms.formSelectBox("Department", "remove_department_name", "remove_department_name", "form_label", "input_long", del_department_options, first=True, please_select=True)}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+                </form>
+            </div>
+            % endif
+
+            <div class="form_background">
+                <h2>Add Team</h2>
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='add_team', active_tab=0))|h}">
+                    ${forms.formSelectBox("Department", "t_department_name", "t_department_name", "form_label", "input_long", department_options, first=True, please_select=True)}
+                    ${forms.formTextField("Team Name", "new_team_name", "new_team_name", "form_label", "input_long")}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+                </form>
+            </div>
+
+            % if len(team_options) > 0:
+            <div class="form_background">
+                <h2>Rename Team</h2>
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='rename_team', active_tab=0))|h}">
+                    ${forms.formSelectBox("Team", "old_team_name", "old_team_name", "form_label", "input_long", team_options, first=True, please_select=True)}
+                    ${forms.formTextField("New Name", "rename_team", "rename_name", "form_label", "input_long")}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Rename" /></p>
+                </form>
+            </div>
+            % endif
+
+            % if len(del_team_options) > 0:
+            <div class="form_background">
+                <h2>Remove Team</h2>
+                <form method="post" enctype='multipart/form-data' action="${urls.build('general.admin', dict(form='remove_team', active_tab=0))|h}">
+                   ${forms.formSelectBox("Team", "team_name", "team_name", "form_label", "input_long", del_team_options, first=True, please_select=True)}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+                </form>
+            </div>
+            % endif
+        </div>
+
+        <div id="tabs-2" class="forensics_work_contents">
+
+            <div class="form_background">
+            <h2>Move Task Type To Different Category</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='move_task_type', active_tab=1))|h}">
+                ${forms.formSelectBox("Task Type", "task_type", "task_type", "form_label", "input_long", task_types, please_select=True, first=True)}
+                ${forms.formSelectBox("New Task Category", "task_category", "task_Category", "form_label", "input_long", task_categories, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Move" /></p>
+            </form>
+            </div>
+
+            <div class="form_background">
+            <h2>Add New Task Category</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='add_task_category', active_tab=1))|h}">
+                 ${forms.formTextField("New Task Category", "new_task_category", "new_task_category", "form_label", "input_long", first=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+            </form>
+            </div>
+
+            <div class="form_background">
+            <h2>Add New Task Type</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='add_task_type', active_tab=1))|h}">
+                ${forms.formTextField("New Task Type", "new_task_type", "new_task_type", "form_label", "input_long", first=True)}
+                ${forms.formSelectBox("Task Category", "change_task_category", "change_task_Category", "form_label", "input_long", task_categories, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+            </form>
+            </div>
+
+            <div class="form_background">
+            <h2>Remove Task Category</h2>
+
+            <p>Please note you can only remove Task Categories that are empty, please move all task types from the category into different categories first.</p>
+
+            % if len(empty_categories) > 0:
+            <form method="post" action="${urls.build('general.admin', dict(form='remove_task_category', active_tab=1))|h}">
+                 ${forms.formSelectBox("Task Category", "remove_task_category", "remove_task_Category", "form_label", "input_long", empty_categories, please_select=True, first=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+            </form>
+            % else:
+                <p>There are no empty categories.</p>
+            % endif
+            </div>
+
+            <div class="form_background">
+            <h2>Remove Task Type</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='remove_task_type', active_tab=1))|h}">
+                 ${forms.formSelectBox("Task Type", "remove_task_type", "remove_task_type", "form_label", "input_long", task_types, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+            </form>
+            </div>
+
+        </div>
+
+        <div id="tabs-3" class="forensics_work_contents">
+
+            <h2>Current Evidence Types</h2>
+
+            % for evi in evidence_types:
+            <div class="evidence">
+                <img alt="${evi|h} icon" src="${urls.build("images", dict(file='siteimages/evidence_icons/' + evi.replace(" ", "").lower() + '.png'))|h}" class="evidenceicon"/>
+                ${evi|h}
+            </div>
+            % endfor
+
+            <div style="clear:both"></div>
+
+            <div class="form_background">
+            <h2>Remove Evidence Type</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='remove_evidence_types', active_tab=2))|h}">
+                 ${forms.formSelectBox("Evidence Type", "evi_type", "evi_type", "form_label", "input_long", evi_types, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+            </form>
+            </div>
+
+            <div class="form_background">
+            <h2>Add New Evidence Type</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='add_evidence_types', active_tab=2))|h}">
+                ${forms.formTextField("New Evidence Type", "evi_type_new", "evi_type_new", "form_label", "input_long", first=True)}
+                ${forms.pickImageField("Pick an Icon", "icon_input", "icon_input", "form_label", "icon_input", icons, "populate_icon", "img_hover")}
+                <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+            </form>
+            </div>
+        </div>
+
+        <div id="tabs-4" class="forensics_work_contents">
+
+            <h1>Case Types</h1>
+
+            <div class="form_background">
+            <h2>Remove Case Type</h2>
+             <form method="post" action="${urls.build('general.admin', dict(form='remove_case_type', active_tab=3))|h}">
+                 ${forms.formSelectBox("Case Types", "case_type", "case_type", "form_label", "input_long", case_types, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+            </form>
+            </div>
+
+            <div class="form_background">
+            <h2>Add New Case Type</h2>
+            <form method="post" action="${urls.build('general.admin', dict(form='add_case_type', active_tab=3))|h}">
+                ${forms.formTextField("New Case Type", "new_case_type", "new_case_type", "form_label", "input_long", first=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+            </form>
+            </div>
+
+            <h1>Case Classifications</h1>
+
+            <div class="form_background">
+            <h2>Remove Case Classification</h2>
+            <form method="post" action="${urls.build('general.admin', dict(form='remove_classification', active_tab=3))|h}">
+                ${forms.formSelectBox("Case Classification", "classification", "classification", "form_label", "input_long", classifications, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+            </form>
+            </div>
+
+            <div class="form_background">
+            <h2>Add New Case Classification</h2>
+            <form method="post" action="${urls.build('general.admin', dict(form='add_classification', active_tab=3))|h}">
+                ${forms.formTextField("New Classification", "new_classification", "classification", "form_label", "input_long", first=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+            </form>
+            </div>
+
+        </div>
+
+
+        <div id="tabs-5" class="forensics_work_contents">
+
+            <h2>Notes Export Formatting</h2>
+
+            <p>Unavailable.</p>
+
+
+        </div>
+
+        <div id="tabs-6" class="forensics_work_contents">
+
+            <div class="form_background">
+            <h2>Validate Users</h2>
+
+            % if validated is True:
+                <div class="success">
+                    <h1>Successfully validated user.</h1>
+                    <p>Please remember to assign <a href='${urls.build("user.edit", dict(user_id=val_user.id, tab="edit_roles"))|h}'>${val_user.forename|h} at least one role</a>.</p>
+                </div>
+            % endif
+
+            % if unvalidated_users:
+            <table>
+                <tr>
+                    <th>Username</th> <th>Name</th> <th>Email address</th> <th>Validate</th>
+                </tr>
+                % for user in unvalidated_users:
+                <tr>
+                     <td><a href='${urls.build("user.view", dict(user_id=user.id))|h}'>${user.username|h}</a></td>
+                     <td>${user.fullname|h}</td>
+                     <td>${user.email|h}</td>
+                     <td><a href='${urls.build("general.admin", dict(active_tab=5, validate_user=user.id))|h}'>Validate user</a></td>
+                </tr>
+                % endfor
+            </table>
+            % else:
+                <p>There are no users that need validating.</p>
+            % endif
+            </div>
+
+            <div class="form_background">
+            <h2>Deactivate Users</h2>
+
+            <p>Pick a user to deactivate their account. Users cannot be deleted, as case information is tied to them; but their accounts can be deactivated so that they can no longer log in.</p>
+            <form method="post" action="${urls.build('general.admin', dict(form='deactiviate_user', active_tab=5))|h}">
+                ${forms.formSelectBox("User to deactivate", "deactivate_user", "deactivate_user", "form_label", "input_long", users, please_select=True, first=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Deactivate" /></p>
+            </form>
+            </div>
+
+            % if len(deactivated_users) > 0:
+                <div class="form_background">
+                <h2>Reactivate Users</h2>
+                <form method="post" action="${urls.build('general.admin', dict(form='reactivate_user', active_tab=5))|h}">
+                    ${forms.formSelectBox("User to reactivate", "reactivate_user", "reactivate_user", "form_label", "input_long", deactivated_users, please_select=True, first=True)}
+                    <p style="clear:both; text-align:center"><input type="submit" value="Reactivate" /></p>
+                </form>
+                </div>
+            % endif
+
+        </div>
+
+        <div id="tabs-7" class="forensics_work_contents">
+
+            <h2>Current Case Priorities</h2>
+
+
+            <table>
+                <tr>
+                    <th>Priority Name</th>
+                    <th>Colour</th>
+                    <th>Default?</th>
+                </tr>
+                 % for priority in all_priorities:
+                 <tr>
+                     <td>${priority.case_priority|h}</td>
+                     <td style="background-color:${priority.colour|h}">&nbsp;</td>
+                     <td>${priority.default|h}</td>
+                 </tr>
+                 % endfor
+            </table>
+
+
+            <div style="clear:both"></div>
+
+
+            % if len(priorities) > 1:
+            <div class="form_background">
+            <h2>Remove Priority</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='remove_priority', active_tab=6))|h}">
+                ${forms.formSelectBox("Priority", "priority_remove", "priority_remove", "form_label", "input_long", priorities, please_select=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Remove" /></p>
+            </form>
+            </div>
+            % endif
+
+            <div class="form_background">
+            <h2>Add New Priority</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='add_priority', active_tab=6))|h}">
+                ${forms.formTextField("Priority", "priority", "priority", "form_label", "input_long", first=True)}
+                ${forms.formSelectBox("Set as default", "default", "default", "form_label", "input_long", [("yes", "Yes"),("no", "No")], please_select=True)}
+                ${forms.formTextField("Colour", "colour", "colour", "form_label", "input_long")}
+                <p style="clear:both; text-align:center"><input type="submit" value="Add" /></p>
+            </form>
+            </div>
+        </div>
+
+        <div id="tabs-8" class="forensics_work_contents">
+
+            <div class="form_background">
+            <h2>Managers</h2>
+            <p>Chose whether managers of managers can see their direct reports, i.e. the head of department can see their team lead's direct report's timesheets & metrics.
+                By default, only the users direct line manager can see timesheets and reports - not managers higher up the chain.</p>
+            <form method="post" action="${urls.build('general.admin', dict(form='managers', active_tab=7))|h}">
+                ${forms.formSelectBox("Managers inherit direct reports", "manager_inherit", "manager_inherit", "form_label", "input_long", manager_inherit_options, value=str(options.manager_inherit), first=True)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Submit" /></p>
+            </form>
+
+            </div>
+
+            <div class="form_background">
+            <h2>Authorisation Options</h2>
+
+            <form method="post" action="${urls.build('general.admin', dict(form='authoriser_options', active_tab=7))|h}">
+                ${forms.formSelectBox("Authorisers can view case tasks", "see_tasks", "see_tasks", "form_label", "input_long", authoriser_options, value=str(options.auth_view_tasks), first=True)}
+                ${forms.formSelectBox("Authorisers can view case evidence", "see_evidence", "see_evidence", "form_label", "input_long", authoriser_options, value=str(options.auth_view_evidence))}
+                <p style="clear:both; text-align:center"><input type="submit" value="Submit" /></p>
+            </form>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

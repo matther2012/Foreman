@@ -1,0 +1,37 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+<%namespace file="/utils/forms.html" name="forms" />
+
+<%def name="javascripts()" filter="trim">
+</%def>
+
+
+<div id="sidebar">
+    ${sidebars.tasks_menu()}
+</div>
+<div id="mainbar">
+
+    % if case is None:
+        <h1>Add Evidence: Section 1 of 2</h1>
+    % else:
+        <h1>Add Evidence to case ${case.case_name|h}: Section 1 of 2</h1>
+        <p><a href="${urls.build('case.view', dict(case_id=case.id))|h}">Back to Case</a></p>
+    % endif
+
+    % if case is None:
+        <form method="post" action="${urls.build('evidence.add_no_case', dict(form='add_evidence'))|h}">
+    % else:
+        <form method="post" action="${urls.build('evidence.add', dict(case_id=case.id, form='add_evidence'))|h}">
+    % endif
+
+        ${forms.formTextField("Reference", "reference", "reference", "form_label", "input_long", first=True)}
+        ${forms.formTextField("Bag Number", "bag_num", "bag_num", "form_label", "input_long", required=False)}
+        ${forms.formSelectBox("Evidence Type", "type", "type", "form_label", "input_long", evidence_type_options, please_select=True)}
+        ${forms.formTextField("Originator", "originator", "originator", "form_label", "input_long")}
+        ${forms.formTextField("Location Seized From", "location", "location", "form_label", "input_long")}
+        ${forms.formTextArea("Comments", "comments", "comments", "form_label", "addeditcase")}
+        ${forms.formCheckBoxes("Generate QR Code", "qr", "qr", "qr", "form_label", "radio_input_short")}
+
+        <p style="clear:both; text-align:center"><input type="submit" value="Next" /></p>
+    </form>
+</div>

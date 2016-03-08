@@ -1,0 +1,132 @@
+﻿<%inherit file="/base/base.html"/>
+
+<%def name="javascripts()" filter="trim">
+
+</%def>
+
+
+<div id="wholemiddle">
+
+    <p class="title">${company|h} - ${department|h}</p>
+
+    % if current_user.is_case_manager():
+    <h1>Case Manager</h1>
+
+    <div class="boxes">
+
+        % if check_perms('Case', 'add'):
+        <a class="boxes" href='${urls.build("case.add")|h}'><span class="pick_a_box">
+            Add a new case <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/apps.png'))|h}" />
+        </span></a>
+        % endif
+       <a class="boxes" href='${urls.build("case.view_all")|h}'><span class="pick_a_box">
+            View and edit cases <br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/Binoculars.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("report.report")|h}'><span class="pick_a_box">
+            Show Reports<br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/Statistics.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("evidence.view_all")|h}'><span class="pick_a_box">
+            View evidence locker <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/Cabinet.png'))|h}" />
+        </span></a>
+    </div>
+
+    <div style="clear:both" />
+    % endif
+
+    % if current_user.is_examiner():
+    <h1>Forensic Examiner</h1>
+
+    <div class="boxes">
+        <a class="boxes" href='${urls.build("case.view_all")|h}'><span class="pick_a_box">
+            View cases <br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/Binoculars.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("task.view_all")|h}'><span class="pick_a_box">
+            <div class="speechbubble">${number_of_tasks|h}</div>
+            Work on a task <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/applications.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("task.view_qas")|h}'><span class="pick_a_box">
+            <div class="speechbubble">${number_of_qas|h}</div>
+            QA a task <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/tick.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("evidence.add_no_case")|h}'><span class="pick_a_box">
+            Add evidence <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/Harddrive.png'))|h}" />
+        </span></a>
+
+        <a class="boxes" href='${urls.build("evidence.view_all")|h}'><span class="pick_a_box">
+            View evidence locker <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/Cabinet.png'))|h}" />
+        </span></a>
+     </div>
+
+    <div style="clear:both" />
+    % endif
+
+    % if current_user.is_requester():
+    <h1>Case Requester</h1>
+
+    <div class="boxes">
+        <a class="boxes" href='${urls.build("case.add")|h}'><span class="pick_a_box">
+            Add a new case <br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/apps.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("user.case_history", dict(user_id=current_user.id))|h}'><span class="pick_a_box">
+            View cases <br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/Binoculars.png'))|h}" />
+        </span></a>
+        <div class="pick_a_box not_used">
+            Produce a report <br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/Statistics.png'))|h}" />
+        </div>
+    </div>
+
+    <div style="clear:both" />
+    % endif
+
+    % if current_user.is_authoriser():
+    <h1>Case Authoriser</h1>
+
+    <div class="boxes">
+        <a class="boxes" href='${urls.build("case.view_all", dict(view="Pending"))|h}'><span class="pick_a_box">
+            View cases <br />
+             <img src="${urls.build("images", dict(file='siteimages/icons/Binoculars.png'))|h}" />
+        </span></a>
+    </div>
+
+    <div style="clear:both" />
+    % endif
+
+    <h1>Admin</h1>
+
+    <div class="boxes">
+        <a class="boxes" href='${urls.build("user.edit", dict(user_id=current_user.id))|h}'><span class="pick_a_box">
+            Edit profile <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/home.png'))|h}" />
+        </span></a>
+
+    % if check_perms('Case', 'admin'):
+        <a class="boxes" href='${urls.build("user.view_all")|h}'><span class="pick_a_box">
+            Edit users <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/User.png'))|h}" />
+        </span></a>
+        <a class="boxes" href='${urls.build("general.admin")|h}'><span class="pick_a_box">
+            Edit settings <br />
+            <img src="${urls.build("images", dict(file='siteimages/icons/Tools.png'))|h}" />
+        </span></a>
+     </div>
+
+    <div style="clear:both" />
+    % else:
+    </div>
+
+    <div style="clear:both" />
+    % endif
+
+</div>

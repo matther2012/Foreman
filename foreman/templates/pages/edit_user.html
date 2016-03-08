@@ -1,0 +1,151 @@
+﻿<%inherit file="/base/base.html"/>
+<%namespace file="/utils/sidebars.html" name="sidebars" />
+<%namespace file="/utils/forms.html" name="forms" />
+<%namespace file="/utils/format.html" name="format" />
+
+<%def name="javascripts()" filter="trim">
+    <link rel="StyleSheet" href="${urls.build('css', dict(file='jquery-ui-1.10.4.custom.css'))|h}" type="text/css" />
+    <script src="${urls.build('javascript', dict(file='jquery-1.10.2.js'))|h}"></script>
+    <script src="${urls.build('javascript', dict(file='jquery-ui-1.10.4.custom.min.js'))|h}"></script>
+    <script>
+        $(function() {
+        $( "#tabs" ).tabs();
+        $( "#tabs" ).tabs({ active: ${active_tab}});
+        });
+    </script>
+</%def>
+
+
+<div id="sidebar">
+   ${sidebars.user_menu()}
+</div>
+
+<div id="mainbar">
+    % if current_user.id == user.id:
+    <h1>Edit Profile</h1>
+    % else:
+    <h1>Edit Profile for ${user.fullname|h}</h1>
+    % endif
+
+    <p><a href="${urls.build('user.view', dict(user_id=user.id))|h}">Back to User Profile</a></p>
+    <div id="tabs">
+        <ul>
+        <li><a href="#tabs-1">Edit Details</a></li>
+        % if check_perms(user, 'edit-roles'):
+        <li><a href="#tabs-2">Edit Roles</a></li>
+        % endif
+        </ul>
+
+        <div id="tabs-1" class="forensics_work_contents">
+
+            % if user_history:
+            <h2>User Edit History</h2>
+
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Changes</th>
+                </tr>
+
+
+                % for history in user_history:
+                <tr>
+                    <td>${history['date']|h}</td>
+                    <td><a href='${urls.build("user.view", dict(user_id=history['user'].id))|h}'>${history['user'].fullname|h}</a></td>
+                    <td>
+                        % if not isinstance(history['change_log'], basestring):
+                        % for entry, change in history['change_log'].iteritems():
+                            % if entry == "Profile photo":
+                                % if change[0] is None:
+                                    The <i>${entry|h}</i> changed from <span class="change">None</span> to
+                                    <a href="${urls.build("files", dict(file='user_profile_photos/' + change[1]))|h}">${change[1]|h}</a> <br/>
+                                % else:
+                                    The <i>${entry|h}</i> changed from <a href="${urls.build("files", dict(file='user_profile_photos/' + change[0]))|h}">${change[0]|h}</a> to
+                                    <a href="${urls.build("files", dict(file='user_profile_photos/' + change[1]))|h}">${change[1]|h}</a> <br/>
+                                % endif
+                            % else:
+                                 The <i>${entry|h}</i> changed from <span class="change">${change[0]|h}</span> to <span class="change">${change[1]|h}</span> <br/>
+
+                            % endif
+
+                        % endfor
+                        % else:
+                            ${history['change_log']|h}
+                        % endif
+                    </td>
+                </tr>
+                % endfor
+            </table>
+            % endif
+
+            <h2>Edit User Details</h2>
+
+            <form method="post" enctype="multipart/form-data" action="${urls.build('user.edit', dict(user_id=user.id, form='edit_user'))|h}">
+                ${forms.formTextField("User", "user", "user", "form_label", "input_long", value=user.id, hidden=True)}
+                ${forms.formTextField("Username", "username", "username", "form_label", "input_long", first=True, value=user.username)}
+                ${forms.formTextField("Email address", "email", "email", "form_label", "input_long", value=user.email)}
+                ${forms.formTextField("Forename", "forename", "forename", "form_label", "input_long", value=user.forename)}
+                ${forms.formTextField("Middle Name", "middlename", "middlename", "form_label", "input_long", value=user.middle, required=False)}
+                ${forms.formTextField("Surname", "surname", "surname", "form_label", "input_long", value=user.surname)}
+                ${forms.formTextField("Profile Photo", "photo", "photo", "form_label", "input_long", input_type="file", required=False)}
+                ${forms.formTextField("Job Title", "job_title", "job_title", "form_label", "input_long",  value=user.job_title)}
+                ${forms.formSelectBox("Team & Department", "team", "team", "form_label", "input_long", teams, please_select=True, value=user.team.id)}
+                <% manager_value = user.manager.id if user.manager is not None else None %>
+                ${forms.formSelectBox("Manager", "manager", "manager", "form_label", "input_long", managers, please_select=True, required=False, value=manager_value)}
+                ${forms.formTextField("Telephone Number", "telephone", "telephone", "form_label", "input_long",  value=user.telephone, required=False)}
+                ${forms.formTextField("Alternative Telephone Number", "alt_telephone", "alt_telephone", "form_label", "input_long",  value=user.alt_telephone, required=False)}
+                ${forms.formTextField("Fax", "fax", "fax", "form_label", "input_long",  value=user.fax, required=False)}
+                <p style="clear:both; text-align:center"><input type="submit" value="Submit" /></p>
+            </form>
+
+        </div>
+
+        % if check_perms(user, 'edit-roles'):
+        <div id="tabs-2" class="forensics_work_contents">
+
+            % if user_role_history:
+            <h2>User Roles History</h2>
+
+             <table>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Changes</th>
+                </tr>
+                % for history in user_role_history:
+                <tr>
+                    <td>${history['date']|h}</td>
+                    <td><a href='${urls.build("user.view", dict(user_id=history['user'].id))|h}'>${history['user'].fullname|h}</a></td>
+                    <td>
+                        % for entry, change in history['change_log'].iteritems():
+                            % if change[0] == "ADD":
+                            The <i>${entry|h}</i> role was assigned to ${change[1]|h} <br/>
+                            % elif change[0] == "DEL":
+                            ${change[1]|h} was removed from the <i>${entry|h}</i> role<br/>
+                            % endif
+                        % endfor
+                    </td>
+                </tr>
+                % endfor
+            </table>
+            % endif
+
+            <h2>Edit User Roles</h2>
+            <form method="post" action="${urls.build('user.edit', dict(user_id=user.id, form='edit_roles'))|h}">
+                % for role_type in role_types:
+                    % if role_type[0] in [role.role for role in user.roles if role.removed is False]:
+                        ${forms.formSelectBox(role_type[0], role_type[1], role_type[1], "form_label", "input_long", role_type[2], value="Yes", required=False)}
+                    % else:
+                        ${forms.formSelectBox(role_type[0], role_type[1], role_type[1], "form_label", "input_long", role_type[2], value="No", required=False)}
+                    % endif
+
+                % endfor
+                <p style="clear:both; text-align:center"><input type="submit" value="Submit" /></p>
+            </form>
+         </div>
+        % endif
+
+    </div>
+
+</div>
